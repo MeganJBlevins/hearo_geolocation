@@ -12,24 +12,28 @@ class MainActivity : Activity() {
 
     private lateinit var permissions: Permissions
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-//
-//        var location = Location()
-//        var currentLocationText = findViewById(R.id.current_location) as TextView
-//        currentLocationText.text = location.cityName
-
         Log.e(TAG, "getting permissions")
         permissions = Permissions(this)
-
-        Log.e(TAG, "Getting current location")
         if(permissions.allGranted) {
             Log.d(TAG, "Permissions Granted!")
+            Toast.makeText(this@MainActivity, "Permissions Granted",
+                Toast.LENGTH_SHORT).show()
+//            var location = Location()
+//            var retrieveLocation =  location.getLastLocation(this)
+//            Log.e(TAG, "city Name: " + location.cityName)
+//            var currentLocationText = findViewById(R.id.current_location) as TextView
+//            currentLocationText.text = location.cityName
+
         }
     }
 
+    fun sayHello(view: View) {
+        Toast.makeText(this@MainActivity, "Hello there!",
+            Toast.LENGTH_SHORT).show()
+    }
     fun setGeofence(view: View) {
         if(!permissions.allGranted) {
             Toast.makeText(this@MainActivity, "Permissions Not Set",

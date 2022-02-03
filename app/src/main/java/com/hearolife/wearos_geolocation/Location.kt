@@ -7,63 +7,49 @@ import android.os.Looper
 import android.util.Log
 import androidx.fragment.app.Fragment
 import com.google.android.gms.location.*
+import com.google.android.gms.tasks.Task
 
 private var TAG : String = "LocationUtils"
 lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 lateinit var locationRequest: LocationRequest
 
 
-class Location : Fragment(R.layout.location) {
-    private var mContext: Context? = null
-
+class Location {
     var cityName : String = "Philly"
     var lastLocation : Location? = null
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        mContext = context
-        getLastLocation()
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        mContext = null
-    }
-
     @SuppressLint("MissingPermission")
-    fun getLastLocation() {
-        if(mContext != null) {
-            fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(mContext)
+    fun getLastLocation(context: Context): Task<Location> {
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
 
-            Log.d("Debug:", "getting last location")
-            fusedLocationProviderClient.lastLocation.addOnCompleteListener { task ->
-                var location: Location? = task.result
-                if (location == null) {
-                    Log.e(TAG, "Getting new location data")
-                    NewLocationData()
-                } else {
-                    Log.d("Debug:", "Your Location:" + location.longitude)
-                    lastLocation = location
-                    cityName = "Philly"
-                }
+        Log.d("Debug:", "getting last location")
+        var locationInfo = fusedLocationProviderClient.lastLocation.addOnCompleteListener { task ->
+            var location: Location? = task.result
+            if (location == null) {
+                Log.e(TAG, "Getting new location data")
+                var newLocation = NewLocationData(context)
+            } else {
+                Log.d("Debug:", "Your Location:" + location.longitude)
+                lastLocation = location
+                cityName = "Springfield"
             }
         }
+        return locationInfo
     }
 
     @SuppressLint("MissingPermission")
-    fun NewLocationData(){
+    fun NewLocationData(context: Context): Task<Void> {
         var locationRequest = LocationRequest.create().apply {
             interval = 0
             fastestInterval = 0
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
             maxWaitTime = 100
         }
-        if(mContext != null) {
-            fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
-            fusedLocationProviderClient!!.requestLocationUpdates(
-                locationRequest, locationCallback, Looper.myLooper()
-            )
-        }
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
+        var request = fusedLocationProviderClient!!.requestLocationUpdates(
+            locationRequest, locationCallback, Looper.myLooper()
+        )
+        return request
     }
 
     private val locationCallback = object : LocationCallback(){
