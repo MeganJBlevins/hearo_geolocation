@@ -19,7 +19,6 @@ data class LocationModel(
 )
 
 class Location {
-
     val currentLocation = MutableLiveData<Location>()
 
     var cityName : String = "Philly"

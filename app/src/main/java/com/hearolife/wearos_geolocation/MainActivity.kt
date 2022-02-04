@@ -13,9 +13,13 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProviders
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
+import com.google.android.gms.location.GeofencingClient
+import com.google.android.gms.location.LocationServices
 import com.hearolife.wearos_geolocation.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
+    lateinit var geofencingClient: GeofencingClient
+
     private lateinit var permissions: Permissions
     private lateinit var locationViewModel: CurrentLocationViewModel
 
@@ -38,6 +42,7 @@ class MainActivity : AppCompatActivity() {
             Log.d(TAG, "Permissions Granted!")
             Toast.makeText(this@MainActivity, "Permissions Granted",
                 Toast.LENGTH_SHORT).show()
+            geofencingClient = LocationServices.getGeofencingClient(this)
         }
     }
 
