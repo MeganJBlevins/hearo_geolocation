@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("MissingPermission")
     fun setGeofence(view: View) {
         var apiService : APIService = APIService()
-        apiService.sendPostRequest(this,"123456", "123456")
+        apiService.sendPost(this,"123456", "78910")
 
         var latitude: Double? = null
         var longitude: Double? = null

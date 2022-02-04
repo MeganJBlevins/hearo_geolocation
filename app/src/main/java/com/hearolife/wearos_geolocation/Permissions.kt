@@ -23,6 +23,7 @@ class Permissions(context: Context) {
 
     private var backgroundLocation : Boolean = false
     private var foregroundLocation : Boolean = false
+    private var internet : Boolean = false
 
     init {
         var granted = getPermission(context)
@@ -39,8 +40,12 @@ class Permissions(context: Context) {
             context,
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PERMISSION_GRANTED
+        internet = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.INTERNET
+        ) == PERMISSION_GRANTED
 
-        if (!backgroundLocation || !foregroundLocation) {
+        if (!backgroundLocation || !foregroundLocation || !internet) {
             requestPermissions(context)
         }
         return foregroundLocation && backgroundLocation

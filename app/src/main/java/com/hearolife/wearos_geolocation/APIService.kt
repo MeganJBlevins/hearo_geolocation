@@ -3,12 +3,11 @@ package com.hearolife.wearos_geolocation
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.io.OutputStreamWriter
-import java.net.HttpURLConnection
-import java.net.URL
-import java.net.URLEncoder
+import com.android.volley.*
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
+
 
 private const val TAG : String = "APIService"
 private const val APIUrl : String = "https://eozp0k3i7q3ytf.m.pipedream.net"
@@ -16,35 +15,28 @@ private const val APIUrl : String = "https://eozp0k3i7q3ytf.m.pipedream.net"
 class APIService {
 
     var testing = "true"
-    fun sendPostRequest(context : Context, latitude:String, longitude:String) {
-        Toast.makeText(context, "sending post request",
-            Toast.LENGTH_SHORT).show()
-//        Log.e(TAG, "Sending Post Request")
-//        var reqParam = URLEncoder.encode("latitude", "UTF-8") + "=" + URLEncoder.encode(latitude, "UTF-8")
-//        reqParam += "&" + URLEncoder.encode("longitude", "UTF-8") + "=" + URLEncoder.encode(longitude, "UTF-8")
-//        val mURL = URL(APIUrl)
-//
-//        with(mURL.openConnection() as HttpURLConnection) {
-//            // optional default is GET
-//            requestMethod = "POST"
-//
-//            val wr = OutputStreamWriter(getOutputStream());
-//            wr.write(reqParam);
-//            wr.flush();
-//
-//            println("URL : $url")
-//            println("Response Code : $responseCode")
-//
-//            BufferedReader(InputStreamReader(inputStream)).use {
-//                val response = StringBuffer()
-//
-//                var inputLine = it.readLine()
-//                while (inputLine != null) {
-//                    response.append(inputLine)
-//                    inputLine = it.readLine()
-//                }
-//                println("Response : $response")
-//            }
-//        }
+
+    fun sendPost(context: Context, latitude: String, longitude: String) {
+        val queue = Volley.newRequestQueue(context)
+
+        val sr: StringRequest = object : StringRequest(
+            Method.POST, APIUrl,
+            Response.Listener<String?> { response -> Log.e("HttpClient", "success! response: $response") },
+            Response.ErrorListener { error -> Log.e("HttpClient", "error: $error") }) {
+            override fun getParams(): Map<String, String>? {
+                val params: MutableMap<String, String> = HashMap()
+                params["latitude"] = latitude
+                params["longitude"] = longitude
+                return params
+            }
+
+            @Throws(AuthFailureError::class)
+            override fun getHeaders(): Map<String, String> {
+                val params: MutableMap<String, String> = HashMap()
+                params["Content-Type"] = "application/x-www-form-urlencoded"
+                return params
+            }
+        }
+        queue.add(sr)
     }
 }
