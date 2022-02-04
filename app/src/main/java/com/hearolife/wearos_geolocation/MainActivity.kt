@@ -8,16 +8,22 @@ import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelProviders
+import androidx.appcompat.app.AppCompatActivity
 import com.hearolife.wearos_geolocation.databinding.ActivityMainBinding
 
-class MainActivity : Activity() {
+class MainActivity : AppCompatActivity() {
     private lateinit var permissions: Permissions
+    private val viewModel by lazy { ViewModelProviders.of(this).get(CurrentLocationViewModel::class.java) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding : ActivityMainBinding =
             DataBindingUtil.setContentView(this, R.layout.activity_main)
-        binding.viewModel = CurrentLocationViewModel()
+        binding.lifecycleOwner = this
+        binding.viewModel = viewModel
         Log.e(TAG, "getting permissions")
         permissions = Permissions(this)
         if(permissions.allGranted) {
@@ -32,10 +38,6 @@ class MainActivity : Activity() {
         }
     }
 
-    fun sayHello(view: View) {
-        Toast.makeText(this@MainActivity, "Hello there!",
-            Toast.LENGTH_SHORT).show()
-    }
     fun setGeofence(view: View) {
         if(!permissions.allGranted) {
             Toast.makeText(this@MainActivity, "Permissions Not Set",

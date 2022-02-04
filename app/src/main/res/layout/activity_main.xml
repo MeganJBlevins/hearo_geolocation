@@ -36,11 +36,17 @@
                     android:layout_height="wrap_content"
                     android:text="@{viewModel.city}" />
 
+                <TextView
+                    android:id="@+id/hello"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@{viewModel.hello}" />
+
                 <Button
                     android:id="@+id/start_geofence"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:onClick="sayHello"
+                    android:onClick="@{() -> viewModel.sayHello()}"
                     android:text="Set Geofence" />
 
             </LinearLayout>
