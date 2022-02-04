@@ -5,7 +5,6 @@ import android.content.Context
 import android.location.Location
 import android.os.Looper
 import android.util.Log
-import androidx.fragment.app.Fragment
 import com.google.android.gms.location.*
 import com.google.android.gms.tasks.Task
 

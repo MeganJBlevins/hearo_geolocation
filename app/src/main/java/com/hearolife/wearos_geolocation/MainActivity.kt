@@ -9,7 +9,6 @@ import android.widget.TextView
 import android.widget.Toast
 
 class MainActivity : Activity() {
-
     private lateinit var permissions: Permissions
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,9 +20,8 @@ class MainActivity : Activity() {
             Log.d(TAG, "Permissions Granted!")
             Toast.makeText(this@MainActivity, "Permissions Granted",
                 Toast.LENGTH_SHORT).show()
-//            var location = Location()
-//            var retrieveLocation =  location.getLastLocation(this)
 //            Log.e(TAG, "city Name: " + location.cityName)
+//            var location = Location()
 //            var currentLocationText = findViewById(R.id.current_location) as TextView
 //            currentLocationText.text = location.cityName
 

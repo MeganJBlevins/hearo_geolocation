@@ -1,40 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.wear.widget.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="@dimen/box_inset_layout_padding"
-    tools:context=".MainActivity"
-    tools:deviceIds="wear">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <FrameLayout
+    <data>
+
+    </data>
+
+    <androidx.wear.widget.BoxInsetLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="@dimen/inner_frame_layout_padding"
-        app:layout_boxedEdges="all">
+        android:padding="@dimen/box_inset_layout_padding"
+        tools:context=".MainActivity"
+        tools:deviceIds="wear">
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_gravity="center">
+            android:layout_height="match_parent"
+            android:padding="@dimen/inner_frame_layout_padding"
+            app:layout_boxedEdges="all">
 
-            <TextView
-                android:id="@+id/current_location"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Hello World" />
-            <Button
-                android:id="@+id/start_geofence"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:onClick="sayHello"
-                android:text="Set Geofence" />
+                android:orientation="vertical"
+                android:layout_gravity="center">
 
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/current_location"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Hello World" />
+
+                <Button
+                    android:id="@+id/start_geofence"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="sayHello"
+                    android:text="Set Geofence" />
+
+            </LinearLayout>
 
 
-    </FrameLayout>
+        </FrameLayout>
 
-</androidx.wear.widget.BoxInsetLayout>
+    </androidx.wear.widget.BoxInsetLayout>
+</layout>
