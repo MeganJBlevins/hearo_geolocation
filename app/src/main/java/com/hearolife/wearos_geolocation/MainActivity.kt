@@ -17,7 +17,7 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         val binding : ActivityMainBinding =
             DataBindingUtil.setContentView(this, R.layout.activity_main)
-        binding.city = "Philly"
+        binding.viewModel = CurrentLocationViewModel()
         Log.e(TAG, "getting permissions")
         permissions = Permissions(this)
         if(permissions.allGranted) {
