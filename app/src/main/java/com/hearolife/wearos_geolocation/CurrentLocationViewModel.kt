@@ -1,37 +1,18 @@
 package com.hearolife.wearos_geolocation
 
+import android.app.Application
 import android.view.View
 import android.widget.Toast
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class CurrentLocationViewModel : ViewModel() {
+class CurrentLocationViewModel(application: Application) : AndroidViewModel(application){
 
-    private val _city = MutableLiveData("Philadelphia")
-    private val _hello = MutableLiveData("Goodbye")
+    private val context = getApplication<Application>().applicationContext
 
-    val city: LiveData<String> = _city
-    val hello: LiveData<String> = _hello
+    private val locationData = LocationLiveData(context)
 
-    private val currentLocation: MutableLiveData<Location> by lazy {
-        MutableLiveData<Location>().also {
-            loadCurrentLocation()
-        }
-    }
-
-    fun getCurrentCity() : String {
-        return "Philly"
-    }
-    fun getCurrentLocation(): LiveData<Location> {
-        return currentLocation
-    }
-
-    fun sayHello() {
-        _hello.value = "Hello"
-    }
-
-
-    private fun loadCurrentLocation() {
-    }
+    fun getLocationData() = locationData
 }

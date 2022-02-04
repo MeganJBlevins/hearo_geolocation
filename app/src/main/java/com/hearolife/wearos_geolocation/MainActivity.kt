@@ -12,29 +12,32 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProviders
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import com.hearolife.wearos_geolocation.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     private lateinit var permissions: Permissions
-    private val viewModel by lazy { ViewModelProviders.of(this).get(CurrentLocationViewModel::class.java) }
+    private lateinit var locationViewModel: CurrentLocationViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        locationViewModel = ViewModelProviders.of(this).get(CurrentLocationViewModel::class.java)
+
         val binding : ActivityMainBinding =
             DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.lifecycleOwner = this
-        binding.viewModel = viewModel
+        binding.viewModel = locationViewModel
         Log.e(TAG, "getting permissions")
         permissions = Permissions(this)
         if(permissions.allGranted) {
+            // observer for location data
+            locationViewModel.getLocationData().observe(this, Observer {
+                binding.currentLongitude.text =  it.longitude.toString()
+                binding.currentLatitude.text =  it.latitude.toString()
+            })
             Log.d(TAG, "Permissions Granted!")
             Toast.makeText(this@MainActivity, "Permissions Granted",
                 Toast.LENGTH_SHORT).show()
-//            Log.e(TAG, "city Name: " + location.cityName)
-//            var location = Location()
-//            var currentLocationText = findViewById(R.id.current_location) as TextView
-//            currentLocationText.text = location.cityName
-
         }
     }
 

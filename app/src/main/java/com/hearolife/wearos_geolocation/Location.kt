@@ -5,6 +5,7 @@ import android.content.Context
 import android.location.Location
 import android.os.Looper
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.location.*
 import com.google.android.gms.tasks.Task
 
@@ -12,8 +13,15 @@ private var TAG : String = "LocationUtils"
 lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 lateinit var locationRequest: LocationRequest
 
+data class LocationModel(
+    val longitude: Double,
+    val latitude: Double
+)
 
 class Location {
+
+    val currentLocation = MutableLiveData<Location>()
+
     var cityName : String = "Philly"
     var lastLocation : Location? = null
 
@@ -53,6 +61,7 @@ class Location {
 
     private val locationCallback = object : LocationCallback(){
         override fun onLocationResult(locationResult: LocationResult) {
+            currentLocation.postValue(locationResult.lastLocation)
             var prevLocation: Location = locationResult.lastLocation
             Log.d("Debug:","your last last location: "+ prevLocation.longitude.toString())
             lastLocation = prevLocation
