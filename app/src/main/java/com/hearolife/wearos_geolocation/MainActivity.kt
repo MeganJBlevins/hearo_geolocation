@@ -7,13 +7,17 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.TextView
 import android.widget.Toast
+import androidx.databinding.DataBindingUtil
+import com.hearolife.wearos_geolocation.databinding.ActivityMainBinding
 
 class MainActivity : Activity() {
     private lateinit var permissions: Permissions
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        val binding : ActivityMainBinding =
+            DataBindingUtil.setContentView(this, R.layout.activity_main)
+        binding.city = "Philly"
         Log.e(TAG, "getting permissions")
         permissions = Permissions(this)
         if(permissions.allGranted) {

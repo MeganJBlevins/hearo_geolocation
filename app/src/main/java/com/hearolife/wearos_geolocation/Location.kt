@@ -18,7 +18,7 @@ class Location {
     var lastLocation : Location? = null
 
     @SuppressLint("MissingPermission")
-    fun getLastLocation(context: Context): Task<Location> {
+    open suspend fun getLastLocation(context: Context): Task<Location> {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
 
         Log.d("Debug:", "getting last location")

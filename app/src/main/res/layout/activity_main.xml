@@ -4,6 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <variable
+            name="viewModel"
+            type="com.hearolife.wearos_geolocation.CurrentLocationViewModel" />
+        <variable name="city" type="String"/>
 
     </data>
 
@@ -30,7 +34,7 @@
                     android:id="@+id/current_location"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Hello World" />
+                    android:text="@{city}" />
 
                 <Button
                     android:id="@+id/start_geofence"
