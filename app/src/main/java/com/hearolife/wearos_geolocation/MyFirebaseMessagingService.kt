@@ -7,39 +7,70 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Build
-import android.provider.ContactsContract.CommonDataKinds.Website.URL
 import android.util.Log
 import android.widget.RemoteViews
 import android.widget.Toast
 import androidx.core.app.NotificationCompat
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.io.OutputStreamWriter
-import java.net.HttpURLConnection
-import java.net.URL
-import java.net.URLEncoder
 
 
-
+private const val locationId = "12345"
+private const val individualId = "67890"
 private const val TAG : String = "MyFirebaseMessagingService"
 const val channelId = "notification_channel"
 const val channelName = "com.hearolife.wearos_location"
 
 class MyFirebaseMessagingService : FirebaseMessagingService(){
 
-    // this is for firebase messages
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        Toast.makeText(this, "Notification Received: " + remoteMessage.notification!!.title!!,
-            Toast.LENGTH_SHORT).show()
-//        Log.d(TAG, remoteMessage.notification!!.title!!)
-        if(remoteMessage.getNotification() != null) {
-//            sendPostRequest("34.789", "-91.123")
-            generateNotification(remoteMessage.notification!!.title!!, remoteMessage.notification!!.body!!)
+        Log.e(TAG, "On message Received.")
+        val data = remoteMessage.data
+        val location_id = data["location_id"]
+        val individual_id = data["individual_id"]
+        val task = data["task"]
+        if(locationId == location_id && individual_id == individualId) {
+            if(task == "get_location") {
+                var apiService : APIService = APIService()
+                apiService.sendPost(this,"123456", "78910")
+            }
         }
+        generateNotification("Received Notification", "Task: $task")
+    }
+
+    fun getToken(context: Context) {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.w(TAG, "Fetching FCM registration token failed", task.exception)
+                return@OnCompleteListener
+            }
+
+            // Get new FCM registration token
+            val token = task.result
+
+            Log.d(TAG, token)
+            Toast.makeText(context, token , Toast.LENGTH_SHORT).show()
+        })
+    }
+
+    /**
+     * Called if the FCM registration token is updated. This may occur if the security of
+     * the previous token had been compromised. Note that this is called when the
+     * FCM registration token is initially generated so this is where you would retrieve the token.
+     */
+    override fun onNewToken(token: String) {
+        Log.d(TAG, "Refreshed token: $token")
+
+        // If you want to send messages to this application instance or
+        // manage this apps subscriptions on the server side, send the
+        // FCM registration token to your app server.
+        sendRegistrationToServer(token)
+    }
+
+    private fun sendRegistrationToServer(token:String) {
+        Log.e(TAG, token)
     }
 
     fun generateNotification(title: String, message: String){
@@ -87,7 +118,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService(){
     }
 
     private fun getRemoteView(title: String, message: String): RemoteViews? {
-        val remoteView = RemoteViews("com.hearolife.wearos_location", R.layout.notification)
+        val remoteView = RemoteViews("com.hearolife.wearos_geolocation", R.layout.notification)
 
         remoteView.setTextViewText(R.id.title, title)
         remoteView.setTextViewText(R.id.message, message)
@@ -95,4 +126,5 @@ class MyFirebaseMessagingService : FirebaseMessagingService(){
         Log.d("Push Notifications: ", "getting remote view: $title")
         return remoteView
     }
+
 }

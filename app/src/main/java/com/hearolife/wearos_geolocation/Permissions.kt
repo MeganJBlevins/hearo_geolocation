@@ -4,8 +4,11 @@ import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
@@ -17,6 +20,7 @@ private const val REQUEST_FOREGROUND_AND_BACKGROUND_PERMISSION_RESULT_CODE = 33
 private const val REQUEST_FOREGROUND_ONLY_PERMISSIONS_REQUEST_CODE = 34
 val PERMISSION_ID = 1010
 
+@RequiresApi(Build.VERSION_CODES.Q)
 class Permissions(context: Context) {
     var allGranted: Boolean = false
         get() = backgroundLocation && foregroundLocation
@@ -31,6 +35,7 @@ class Permissions(context: Context) {
         allGranted = granted
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     fun getPermission(context: Context): Boolean {
         backgroundLocation = ContextCompat.checkSelfPermission(
             context,
@@ -40,17 +45,19 @@ class Permissions(context: Context) {
             context,
             Manifest.permission.ACCESS_FINE_LOCATION
         ) == PERMISSION_GRANTED
-        internet = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.INTERNET
-        ) == PERMISSION_GRANTED
+//        internet = ContextCompat.checkSelfPermission(
+//            context,
+//            Manifest.permission.INTERNET
+//        ) == PERMISSION_GRANTED
 
-        if (!backgroundLocation || !foregroundLocation || !internet) {
+        if (!backgroundLocation || !foregroundLocation) {
+
             requestPermissions(context)
         }
         return foregroundLocation && backgroundLocation
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     fun requestPermissions(context: Context) {
         Log.e(TAG, "requesting permissions")
         val activity = context as Activity
@@ -58,7 +65,8 @@ class Permissions(context: Context) {
             activity,
             arrayOf(
                 android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                android.Manifest.permission.ACCESS_FINE_LOCATION
+                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                android.Manifest.permission.INTERNET
             ),
             PERMISSION_ID
         )

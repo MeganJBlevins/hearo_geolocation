@@ -5,10 +5,12 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -17,6 +19,8 @@ import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.messaging.FirebaseMessaging
 import com.hearolife.wearos_geolocation.databinding.ActivityMainBinding
 
 
@@ -26,6 +30,7 @@ class MainActivity : AppCompatActivity() {
 
     var geofence : Geofence? = null
     private lateinit var permissions: Permissions
+    private lateinit var firebaseService : MyFirebaseMessagingService
     private lateinit var locationViewModel: CurrentLocationViewModel
 
     private val geofencePendingIntent: PendingIntent by lazy {
@@ -35,6 +40,7 @@ class MainActivity : AppCompatActivity() {
         PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_MUTABLE)
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         locationViewModel = ViewModelProviders.of(this).get(CurrentLocationViewModel::class.java)
@@ -43,7 +49,8 @@ class MainActivity : AppCompatActivity() {
             // Fall back to functionality that doesn't use location or
             // warn the user that location function isn't available.
         }
-
+        firebaseService = MyFirebaseMessagingService()
+        firebaseService.getToken(this)
 
         locationManager = getSystemService(LOCATION_SERVICE) as LocationManager?
 
@@ -74,6 +81,7 @@ class MainActivity : AppCompatActivity() {
     private fun hasGps(): Boolean =
         packageManager.hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS)
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     @SuppressLint("MissingPermission")
     fun setGeofence(view: View) {
         var apiService : APIService = APIService()
