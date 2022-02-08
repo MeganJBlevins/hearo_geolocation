@@ -14,8 +14,6 @@ private const val APIUrl : String = "https://eozp0k3i7q3ytf.m.pipedream.net"
 
 class APIService {
 
-    var testing = "true"
-
     fun sendPost(context: Context, latitude: String, longitude: String) {
         val queue = Volley.newRequestQueue(context)
 

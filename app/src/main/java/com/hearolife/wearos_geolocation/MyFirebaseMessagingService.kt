@@ -1,20 +1,36 @@
 package com.hearolife.wearos_geolocation
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.location.Location
 import android.os.Build
+import android.os.Looper
 import android.util.Log
 import android.widget.RemoteViews
 import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
+import androidx.lifecycle.ViewModelProviders
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.gms.tasks.Task
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 private const val locationId = "12345"
@@ -24,20 +40,70 @@ const val channelId = "notification_channel"
 const val channelName = "com.hearolife.wearos_location"
 
 class MyFirebaseMessagingService : FirebaseMessagingService(){
-
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         Log.e(TAG, "On message Received.")
         val data = remoteMessage.data
         val location_id = data["location_id"]
         val individual_id = data["individual_id"]
         val task = data["task"]
+
         if(locationId == location_id && individual_id == individualId) {
-            if(task == "get_location") {
-                var apiService : APIService = APIService()
-                apiService.sendPost(this,"123456", "78910")
+            if (task == "get_location") {
+                getLocation()
             }
         }
-        generateNotification("Received Notification", "Task: $task")
+//        generateNotification("Received Notification", "Task: $task")
+    }
+
+    fun sendLocationToAPI(latitude: String, longitude: String) {
+        Log.e(TAG, "Sending location to API : 60")
+        var apiService = APIService()
+        apiService.sendPost(
+            this,
+            latitude,
+            longitude
+        )
+    }
+
+    @SuppressLint("MissingPermission")
+    fun getLocation() {
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+
+        Log.e(TAG, "Getting Lcoation :69")
+        fusedLocationProviderClient.lastLocation.addOnCompleteListener { task ->
+            var location: Location? = task.result
+            if (location == null) {
+                newLocationData()
+                Log.e(TAG, "Getting new location data")
+            } else {
+                sendLocationToAPI(location.latitude.toString(), location.longitude.toString())
+                Log.e(TAG, "current Location: ${location.latitude.toString()}")
+            }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    fun newLocationData(): Task<Void> {
+        Log.e(TAG, "Getting new location data :94")
+        var locationRequest = LocationRequest.create().apply {
+            interval = 0
+            fastestInterval = 0
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            maxWaitTime = 100
+        }
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+        return fusedLocationProviderClient!!.requestLocationUpdates(
+            locationRequest, locationCallback, Looper.myLooper()
+        )
+    }
+
+    private val locationCallback = object : LocationCallback(){
+        override fun onLocationResult(locationResult: LocationResult) {
+            var newLocation = locationResult.lastLocation
+            Log.e(TAG, "On Location Result callback ${newLocation.latitude.toString()}")
+            sendLocationToAPI(newLocation.latitude.toString(), newLocation.longitude.toString())
+            Log.d("Debug:","your last last location: "+ newLocation.longitude.toString())
+        }
     }
 
     fun getToken(context: Context) {
