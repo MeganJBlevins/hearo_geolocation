@@ -19,6 +19,9 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.WorkRequest
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
@@ -82,6 +85,14 @@ class MainActivity : AppCompatActivity() {
             binding.currentLongitude.text =  it.longitude.toString()
             binding.currentLatitude.text =  it.latitude.toString()
         })
+
+        val sendLocationWorkRequest: WorkRequest =
+            OneTimeWorkRequestBuilder<SendLocationWorker>()
+                .build()
+
+        WorkManager
+            .getInstance(this)
+            .enqueue(sendLocationWorkRequest)
 
         // set geofence
         geofencingClient = LocationServices.getGeofencingClient(this)

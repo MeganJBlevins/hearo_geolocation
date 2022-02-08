@@ -15,17 +15,18 @@ lateinit var locationRequest: LocationRequest
 
 data class LocationModel(
     val longitude: Double,
-    val latitude: Double
+    val latitude: Double,
+    val city : String?
 )
 
-class Location {
+class LocationService {
     val currentLocation = MutableLiveData<Location>()
 
     var cityName : String = "Philly"
     var lastLocation : Location? = null
 
     @SuppressLint("MissingPermission")
-    open suspend fun getLastLocation(context: Context): Task<Location> {
+   fun getLastLocation(context: Context): Task<Location> {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
 
         Log.d("Debug:", "getting last location")
