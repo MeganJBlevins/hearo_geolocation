@@ -7,14 +7,16 @@ import com.android.volley.*
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import java.time.LocalDateTime
 
 
 private const val TAG : String = "APIService"
-private const val APIUrl : String = "https://eozp0k3i7q3ytf.m.pipedream.net"
+private const val APIUrl : String = "https://eo1e9cu5vornd7i.m.pipedream.net"
 
-class APIService {
+class APIService() {
 
     fun sendPost(context: Context, latitude: String, longitude: String) {
+        Log.e(TAG, "Sending Post $longitude")
         val queue = Volley.newRequestQueue(context)
 
         val sr: StringRequest = object : StringRequest(
@@ -25,6 +27,7 @@ class APIService {
                 val params: MutableMap<String, String> = HashMap()
                 params["latitude"] = latitude
                 params["longitude"] = longitude
+                params["time"] = LocalDateTime.now().toString()
                 return params
             }
 

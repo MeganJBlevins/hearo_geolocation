@@ -19,9 +19,7 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.WorkRequest
+import androidx.work.*
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
@@ -29,6 +27,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
 import com.hearolife.wearos_geolocation.databinding.ActivityMainBinding
+import java.util.concurrent.TimeUnit
 
 
 class MainActivity : AppCompatActivity() {
@@ -86,8 +85,9 @@ class MainActivity : AppCompatActivity() {
             binding.currentLatitude.text =  it.latitude.toString()
         })
 
-        val sendLocationWorkRequest: WorkRequest =
-            OneTimeWorkRequestBuilder<SendLocationWorker>()
+        val sendLocationWorkRequest =
+            PeriodicWorkRequestBuilder<SendLocationWorker>(1, TimeUnit.SECONDS)
+                .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
                 .build()
 
         WorkManager

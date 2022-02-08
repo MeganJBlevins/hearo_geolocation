@@ -20,13 +20,12 @@ data class LocationModel(
 )
 
 class LocationService {
-    val currentLocation = MutableLiveData<Location>()
 
-    var cityName : String = "Philly"
-    var lastLocation : Location? = null
+    private lateinit var context : Context
 
     @SuppressLint("MissingPermission")
-   fun getLastLocation(context: Context): Task<Location> {
+   fun getLastLocation(context: Context, callbackFunction: String): Task<Location> {
+        this.context = context;
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
 
         Log.d("Debug:", "getting last location")
@@ -34,18 +33,19 @@ class LocationService {
             var location: Location? = task.result
             if (location == null) {
                 Log.e(TAG, "Getting new location data")
-                var newLocation = NewLocationData(context)
+                NewLocationData(callbackFunction)
             } else {
+                if(callbackFunction == "sendToAPI") {
+                    sendLocation(location)
+                }
                 Log.d("Debug:", "Your Location:" + location.longitude)
-                lastLocation = location
-                cityName = "Springfield"
             }
         }
         return locationInfo
     }
 
     @SuppressLint("MissingPermission")
-    fun NewLocationData(context: Context): Task<Void> {
+    fun NewLocationData(callbackFunction: String): Task<Void> {
         var locationRequest = LocationRequest.create().apply {
             interval = 0
             fastestInterval = 0
@@ -53,19 +53,41 @@ class LocationService {
             maxWaitTime = 100
         }
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
-        var request = fusedLocationProviderClient!!.requestLocationUpdates(
-            locationRequest, locationCallback, Looper.myLooper()
-        )
-        return request
+
+        if(callbackFunction == "sendToAPI") {
+            var request = fusedLocationProviderClient!!.requestLocationUpdates(
+                locationRequest, sendToAPI, Looper.myLooper()
+            )
+            return request
+        } else {
+            var request = fusedLocationProviderClient!!.requestLocationUpdates(
+                locationRequest, locationCallback, Looper.myLooper()
+            )
+            return request
+        }
+
+
     }
 
-    private val locationCallback = object : LocationCallback(){
+    private fun sendLocation(location: Location) {
+        var apiService = APIService()
+        apiService.sendPost(
+            context,
+            location.latitude.toString(),
+            location.longitude.toString()
+        )
+    }
+
+    private val sendToAPI = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
-            currentLocation.postValue(locationResult.lastLocation)
-            var prevLocation: Location = locationResult.lastLocation
-            Log.d("Debug:","your last last location: "+ prevLocation.longitude.toString())
-            lastLocation = prevLocation
-            cityName = "Ozark"
+            super.onLocationResult(locationResult)
+            var location = locationResult.lastLocation
+            sendLocation(location)
+        }
+    }
+        private val locationCallback = object : LocationCallback(){
+        override fun onLocationResult(locationResult: LocationResult) {
+            //TODO something here.
         }
     }
 }

@@ -10,16 +10,15 @@ import androidx.work.WorkerParameters
    SPDX-License-Identifier: Apache-2.0 */
 
 private const val TAG : String = "Send Location Worker"
-private const val APIUrl : String = "https://eo1e9cu5vornd7i.m.pipedream.net"
 
 class SendLocationWorker(appContext: Context, workerParams: WorkerParameters):
     Worker(appContext, workerParams) {
 
     @SuppressLint("MissingPermission")
     override fun doWork(): Result {
-
-
-        Log.e(TAG, "Doing Work.")
+        Log.e(TAG, "Doing Work")
+        var location = LocationService()
+        location.getLastLocation(applicationContext, "sendToAPI")
         return Result.success()
     }
 }
