@@ -48,6 +48,7 @@
         </service>
         <receiver android:name=".GeofenceBroadcastReceiver"/>
         <receiver android:process=":remote" android:name=".LocationAlarm"></receiver>
+        <service  android:name=".PermissionsService"/>
 
     </application>
 

@@ -3,7 +3,7 @@ package com.hearolife.wearos_geolocation
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.PendingIntent
-import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -21,10 +22,9 @@ import androidx.work.*
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
-import com.google.android.gms.location.LocationServices
-import com.google.firebase.FirebaseApp
 import com.hearolife.wearos_geolocation.databinding.ActivityMainBinding
-import java.util.concurrent.TimeUnit
+
+private const val MY_PERMISSIONS_REQUEST_CODE : Int = 11
 
 
 class MainActivity : AppCompatActivity() {
@@ -69,10 +69,7 @@ class MainActivity : AppCompatActivity() {
             DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.lifecycleOwner = this
         binding.viewModel = locationViewModel
-
-        if(!permissionsGranted) {
-            requestPermissions()
-        }
+        checkPermission()
 
         Log.d(TAG, "Permissions Granted!")
 
@@ -81,6 +78,10 @@ class MainActivity : AppCompatActivity() {
             binding.currentLongitude.text =  it.longitude.toString()
             binding.currentLatitude.text =  it.latitude.toString()
         })
+
+        val alarm = LocationAlarm()
+        alarm.setAlarm(this);
+
 
         // no longer using worker... using alarm.
 //        val sendLocationWorkRequest =
@@ -92,11 +93,10 @@ class MainActivity : AppCompatActivity() {
 //            .getInstance(this)
 //            .enqueue(sendLocationWorkRequest)
 
-        val alarm = LocationAlarm()
-        alarm.setAlarm(this);
+
 
         // set geofence
-        geofencingClient = LocationServices.getGeofencingClient(this)
+//        geofencingClient = LocationServices.getGeofencingClient(this)
 
     }
 
@@ -113,11 +113,7 @@ class MainActivity : AppCompatActivity() {
             longitude = it.longitude
         })
 
-        if(!permissionsGranted) {
-            requestPermissions()
-            Toast.makeText(this@MainActivity, "Permissions Not Set",
-                Toast.LENGTH_SHORT).show()
-        }
+        checkPermission()
 
         if(latitude != null && longitude != null) {
             geofence = buildGeofence(latitude!!, longitude!!)
@@ -198,60 +194,57 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+    fun checkPermission() {
+        Log.e(TAG, "Checking permissions")
 
-    fun requestPermissions() {
-        Log.e(TAG, "requesting permissions")
-        ActivityCompat.requestPermissions(
-            this@MainActivity,
-            arrayOf(
-                android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                android.Manifest.permission.ACCESS_FINE_LOCATION,
-                android.Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-                android.Manifest.permission.INTERNET
-            ),
-            PERMISSION_ID
-        )
-
-        when {
-            ContextCompat.checkSelfPermission(
+        if ((ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED -> {
-                Log.d(TAG, "Permissions Granted")
-                // You can use the API that requires the permission.
-            }
-            else -> {
 
-                Log.d(TAG, "Permissions Not Granted. Need more info.")
-            }
+            )
+                    + ContextCompat.checkSelfPermission(
+                this, Manifest.permission.ACCESS_COARSE_LOCATION
+            )
+                    + ContextCompat.checkSelfPermission(
+                this, Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            )
+                    + ContextCompat.checkSelfPermission(
+                this, Manifest.permission.INTERNET
+            ))
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+
+            Log.e(TAG, "Requesting permissions")
+
+            // Directly request for required permissions, without explanation
+            ActivityCompat.requestPermissions(
+                this, arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                    Manifest.permission.INTERNET
+                ),
+                MY_PERMISSIONS_REQUEST_CODE
+            )
+
+        } else {
+            // Do something, when permissions are already granted
+            Toast.makeText(this, "Permissions already granted", Toast.LENGTH_SHORT).show()
         }
-
-        getPermission()
     }
 
-    fun getPermission(): Boolean {
-        coarseLocation = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-        fineLocation = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-        backgroundLocation = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_BACKGROUND_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-        internet = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.INTERNET
-        ) == PackageManager.PERMISSION_GRANTED
 
-        Log.e(TAG, "coarse $coarseLocation : fine $fineLocation : internet $internet : background $backgroundLocation")
-        if (!coarseLocation || !fineLocation || !internet || !backgroundLocation) {
-            requestPermissions()
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                            permissions: Array<String>,
+                                            grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == MY_PERMISSIONS_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this@MainActivity, "Permissions Granted", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this@MainActivity, "Permissions Denied", Toast.LENGTH_SHORT).show()
+            }
         }
-        return fineLocation && coarseLocation && internet && backgroundLocation
     }
 }
 
