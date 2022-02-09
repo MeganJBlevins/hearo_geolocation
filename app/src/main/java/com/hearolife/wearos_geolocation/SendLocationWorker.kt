@@ -17,8 +17,8 @@ class SendLocationWorker(appContext: Context, workerParams: WorkerParameters):
     @SuppressLint("MissingPermission")
     override fun doWork(): Result {
         Log.e(TAG, "Doing Work")
-        var location = LocationService()
-        location.getLastLocation(applicationContext, "sendToAPI")
+//        var location = LocationService()
+//        location.getLastLocation(applicationContext, "saveToDb")
         return Result.success()
     }
 }

@@ -50,7 +50,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService(){
         if(locationId == location_id && individual_id == individualId) {
             if (task == "get_location") {
                 var locationService = LocationService()
-                locationService.getLastLocation(applicationContext, "sendToAPI")
+                locationService.getLastLocation(applicationContext, "saveToDb")
             }
         }
 //        generateNotification("Received Notification", "Task: $task")

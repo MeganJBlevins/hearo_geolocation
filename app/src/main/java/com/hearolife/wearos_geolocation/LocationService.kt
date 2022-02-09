@@ -8,6 +8,9 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.location.*
 import com.google.android.gms.tasks.Task
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import java.time.LocalDateTime
 
 private var TAG : String = "LocationUtils"
 lateinit var fusedLocationProviderClient: FusedLocationProviderClient
@@ -22,6 +25,7 @@ data class LocationModel(
 class LocationService {
 
     private lateinit var context : Context
+    val db = Firebase.firestore
 
     @SuppressLint("MissingPermission")
    fun getLastLocation(context: Context, callbackFunction: String): Task<Location> {
@@ -37,6 +41,8 @@ class LocationService {
             } else {
                 if(callbackFunction == "sendToAPI") {
                     sendLocation(location)
+                } else {
+                    saveLocation(location)
                 }
                 Log.d("Debug:", "Your Location:" + location.longitude)
             }
@@ -61,7 +67,7 @@ class LocationService {
             return request
         } else {
             var request = fusedLocationProviderClient!!.requestLocationUpdates(
-                locationRequest, locationCallback, Looper.myLooper()
+                locationRequest, saveToDb, Looper.myLooper()
             )
             return request
         }
@@ -78,17 +84,41 @@ class LocationService {
         )
     }
 
+    private fun saveLocation(location: Location) {
+        // Create a new user with a first and last name
+        val locationModel = hashMapOf(
+            "latitude" to location.latitude.toString(),
+            "longitude" to location.longitude.toString(),
+            "date" to LocalDateTime.now().toString()
+        )
+
+        Log.e(TAG, "Data: $locationModel")
+        // Add a new document with a generated ID
+        db.collection("individual_67890")
+            .add(locationModel)
+            .addOnSuccessListener { documentReference ->
+                Log.d(TAG, "DocumentSnapshot added with ID: ${documentReference.id}")
+            }
+            .addOnFailureListener { e ->
+                Log.w(TAG, "Error adding document", e)
+            }
+    }
+
     private val sendToAPI = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             super.onLocationResult(locationResult)
             var location = locationResult.lastLocation
-            sendLocation(location)
+//            sendLocation(location)
         }
     }
-        private val locationCallback = object : LocationCallback(){
+    private val saveToDb = object : LocationCallback(){
         override fun onLocationResult(locationResult: LocationResult) {
-            //TODO something here.
+            var location = locationResult.lastLocation
+            saveLocation(location)
+
         }
     }
+
+
 }
 

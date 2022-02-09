@@ -2,13 +2,11 @@ package com.hearolife.wearos_geolocation
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -24,8 +22,7 @@ import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.FirebaseApp
 import com.hearolife.wearos_geolocation.databinding.ActivityMainBinding
 import java.util.concurrent.TimeUnit
 
@@ -85,17 +82,22 @@ class MainActivity : AppCompatActivity() {
             binding.currentLatitude.text =  it.latitude.toString()
         })
 
-        val sendLocationWorkRequest =
-            PeriodicWorkRequestBuilder<SendLocationWorker>(1, TimeUnit.SECONDS)
-                .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
-                .build()
+        // no longer using worker... using alarm.
+//        val sendLocationWorkRequest =
+//            PeriodicWorkRequestBuilder<SendLocationWorker>(15, TimeUnit.MINUTES)
+//                .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+//                .build()
+//
+//        WorkManager
+//            .getInstance(this)
+//            .enqueue(sendLocationWorkRequest)
 
-        WorkManager
-            .getInstance(this)
-            .enqueue(sendLocationWorkRequest)
+        val alarm = LocationAlarm()
+        alarm.setAlarm(this);
 
         // set geofence
         geofencingClient = LocationServices.getGeofencingClient(this)
+
     }
 
     // make sure watch has GPS
