@@ -79,8 +79,7 @@ class MainActivity : AppCompatActivity() {
             binding.currentLatitude.text =  it.latitude.toString()
         })
 
-        val alarm = LocationAlarm()
-        alarm.setAlarm(this);
+        setAlarm()
 
 
         // no longer using worker... using alarm.
@@ -97,6 +96,11 @@ class MainActivity : AppCompatActivity() {
 
         // set geofence
 //        geofencingClient = LocationServices.getGeofencingClient(this)
+
+    }
+
+    private fun setAlarm(){
+        var alarmService = AlarmService()
 
     }
 
@@ -194,6 +198,9 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+    fun checkPermissions(view: View){
+        checkPermission()
+    }
     fun checkPermission() {
         Log.e(TAG, "Checking permissions")
 
@@ -204,9 +211,6 @@ class MainActivity : AppCompatActivity() {
             )
                     + ContextCompat.checkSelfPermission(
                 this, Manifest.permission.ACCESS_COARSE_LOCATION
-            )
-                    + ContextCompat.checkSelfPermission(
-                this, Manifest.permission.ACCESS_BACKGROUND_LOCATION
             )
                     + ContextCompat.checkSelfPermission(
                 this, Manifest.permission.INTERNET
@@ -221,7 +225,6 @@ class MainActivity : AppCompatActivity() {
                 this, arrayOf(
                     Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION,
                     Manifest.permission.INTERNET
                 ),
                 MY_PERMISSIONS_REQUEST_CODE
@@ -233,6 +236,37 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    val requestPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                // Permission is granted. Continue the action or workflow in your
+                // app.
+            } else {
+                Toast.makeText(this, "Permissions NOT granted", Toast.LENGTH_SHORT).show()
+
+                // Explain to the user that the feature is unavailable because the
+                // features requires a permission that the user has denied. At the
+                // same time, respect the user's decision. Don't link to system
+                // settings in an effort to convince the user to change their
+                // decision.
+            }
+        }
+
+    fun requestBackgroundPermissions(view: View) {
+        if ((ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+
+            ))
+            != PackageManager.PERMISSION_GRANTED) {
+                Log.e(TAG, "permission not granted for background")
+
+            requestPermissionLauncher.launch(
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        }
+    }
 
     override fun onRequestPermissionsResult(requestCode: Int,
                                             permissions: Array<String>,
