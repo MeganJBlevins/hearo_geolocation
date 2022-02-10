@@ -50,10 +50,10 @@ class MyFirebaseMessagingService : FirebaseMessagingService(){
         if(locationId == location_id && individual_id == individualId) {
             if (task == "get_location") {
                 var locationService = LocationService()
-                locationService.getLastLocation(applicationContext, "saveToDb")
+                locationService.getLastLocation(applicationContext, "sendToAPI")
             }
         }
-//        generateNotification("Received Notification", "Task: $task")
+        generateNotification("Received Notification", "Task: $task")
     }
 
     fun getToken(context: Context) {
@@ -66,7 +66,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService(){
             // Get new FCM registration token
             val token = task.result
 
-            Log.d(TAG, token)
+            Log.e(TAG, token)
             Toast.makeText(context, token , Toast.LENGTH_SHORT).show()
         })
     }

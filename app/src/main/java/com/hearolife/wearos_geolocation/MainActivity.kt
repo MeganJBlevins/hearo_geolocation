@@ -2,12 +2,15 @@ package com.hearolife.wearos_geolocation
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AlarmManager
 import android.app.PendingIntent
-import android.content.DialogInterface
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -71,28 +74,13 @@ class MainActivity : AppCompatActivity() {
         binding.viewModel = locationViewModel
         checkPermission()
 
-        Log.d(TAG, "Permissions Granted!")
-
-        // observer for location data
+//         observer for location data
         locationViewModel.getLocationData().observe(this, Observer {
             binding.currentLongitude.text =  it.longitude.toString()
             binding.currentLatitude.text =  it.latitude.toString()
         })
 
-        setAlarm()
-
-
-        // no longer using worker... using alarm.
-//        val sendLocationWorkRequest =
-//            PeriodicWorkRequestBuilder<SendLocationWorker>(15, TimeUnit.MINUTES)
-//                .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
-//                .build()
-//
-//        WorkManager
-//            .getInstance(this)
-//            .enqueue(sendLocationWorkRequest)
-
-
+//        setAlarm()
 
         // set geofence
 //        geofencingClient = LocationServices.getGeofencingClient(this)
@@ -100,10 +88,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setAlarm(){
-        var alarmService = AlarmService()
+        val intent = Intent(this, LocationAlarm::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(this, 42,
+            intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
+        val manager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+        manager.setExactAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP,
+            0,
+            pendingIntent)
     }
 
+    private fun requestBattery(view: View) {
+        startActivity(
+            Intent(
+                Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                Uri.parse("package:com.hearolife.wearos_geolocation")
+            )
+        )
+    }
     // make sure watch has GPS
     private fun hasGps(): Boolean =
         packageManager.hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS)
@@ -198,12 +202,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-    fun checkPermissions(view: View){
-        checkPermission()
-    }
-    fun checkPermission() {
-        Log.e(TAG, "Checking permissions")
 
+    fun checkPermission() {
         if ((ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
