@@ -22,9 +22,12 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.work.*
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
+import com.google.android.gms.location.LocationServices
 import com.hearolife.wearos_geolocation.databinding.ActivityMainBinding
 
 private const val MY_PERMISSIONS_REQUEST_CODE : Int = 11
@@ -33,6 +36,8 @@ private const val MY_PERMISSIONS_REQUEST_CODE : Int = 11
 class MainActivity : AppCompatActivity() {
     lateinit var geofencingClient: GeofencingClient
     private var locationManager : LocationManager? = null
+    private lateinit var mGeofenceList: ArrayList<Geofence>
+
 
     var geofence : Geofence? = null
     private lateinit var firebaseService : MyFirebaseMessagingService
@@ -63,6 +68,7 @@ class MainActivity : AppCompatActivity() {
             // Fall back to functionality that doesn't use location or
             // warn the user that location function isn't available.
         }
+
         firebaseService = MyFirebaseMessagingService()
         firebaseService.getToken(this)
 
@@ -83,35 +89,36 @@ class MainActivity : AppCompatActivity() {
 //        setAlarm()
 
         // set geofence
-//        geofencingClient = LocationServices.getGeofencingClient(this)
+        geofencingClient = LocationServices.getGeofencingClient(this)
+        mGeofenceList = ArrayList<Geofence>()
 
     }
 
-    private fun setAlarm(){
-        val intent = Intent(this, LocationAlarm::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(this, 42,
-            intent, PendingIntent.FLAG_UPDATE_CURRENT)
+//    private fun setAlarm(){
+//        val intent = Intent(this, LocationAlarm::class.java)
+//        val pendingIntent = PendingIntent.getBroadcast(this, 42,
+//            intent, PendingIntent.FLAG_UPDATE_CURRENT)
+//
+//        val manager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+//
+//        manager.setExactAndAllowWhileIdle(
+//            AlarmManager.RTC_WAKEUP,
+//            0,
+//            pendingIntent)
+//    }
 
-        val manager = this.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+//    private fun requestBattery(view: View) {
+//        startActivity(
+//            Intent(
+//                Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+//                Uri.parse("package:com.hearolife.wearos_geolocation")
+//            )
+//        )
+//    }
 
-        manager.setExactAndAllowWhileIdle(
-            AlarmManager.RTC_WAKEUP,
-            0,
-            pendingIntent)
-    }
-
-    private fun requestBattery(view: View) {
-        startActivity(
-            Intent(
-                Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
-                Uri.parse("package:com.hearolife.wearos_geolocation")
-            )
-        )
-    }
     // make sure watch has GPS
     private fun hasGps(): Boolean =
         packageManager.hasSystemFeature(PackageManager.FEATURE_LOCATION_GPS)
-
     @SuppressLint("MissingPermission")
     fun setGeofence(view: View) {
         var latitude: Double? = null
@@ -134,18 +141,6 @@ class MainActivity : AppCompatActivity() {
                 }
                 addOnFailureListener {
                     Log.e("geofence", it.message.toString())
-                    if (!locationManager?.isProviderEnabled(LocationManager.GPS_PROVIDER)!!) {
-                        Toast.makeText(
-                            this@MainActivity, "GPS provider not available",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    if (!locationManager?.isProviderEnabled(LocationManager.NETWORK_PROVIDER)!!) {
-                        Toast.makeText(
-                            this@MainActivity, "Network provider not available",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
                 }
             }
         }
@@ -165,27 +160,27 @@ class MainActivity : AppCompatActivity() {
             stopGeofences()
         }
         var newGeofence : Geofence? =  Geofence.Builder()
-                // Set the request ID of the geofence. This is a string to identify this
-                // geofence.
-                .setRequestId(GEOFENCE_REQ_ID)
+            // Set the request ID of the geofence. This is a string to identify this
+            // geofence.
+            .setRequestId(GEOFENCE_REQ_ID)
 
-                // Set the circular region of this geofence.
-                .setCircularRegion(
-                    latitude,
-                    longitude,
-                    GEOFENCE_RADIUS
-                )
+            // Set the circular region of this geofence.
+            .setCircularRegion(
+                latitude,
+                longitude,
+                GEOFENCE_RADIUS
+            )
 
-                // Set the expiration duration of the geofence. This geofence gets automatically
-                // removed after this period of time.
-                .setExpirationDuration(GEOFENCE_EXPIRATION_IN_MILLISECONDS)
+            // Set the expiration duration of the geofence. This geofence gets automatically
+            // removed after this period of time.
+            .setExpirationDuration(GEOFENCE_EXPIRATION_IN_MILLISECONDS)
 
-                // Set the transition types of interest. Alerts are only generated for these
-                // transition. We track entry and exit transitions in this sample.
-                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
+            // Set the transition types of interest. Alerts are only generated for these
+            // transition. We track entry and exit transitions in this sample.
+            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
 
-                // Create the geofence.
-                .build()
+            // Create the geofence.
+            .build()
 
         return newGeofence
     }

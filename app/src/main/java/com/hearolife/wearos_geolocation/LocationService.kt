@@ -57,15 +57,19 @@ class LocationService {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
 
         if(callbackFunction == "sendToAPI") {
-            var request = fusedLocationProviderClient!!.requestLocationUpdates(
-                locationRequest, sendToAPI, Looper.myLooper()
-            )
-            return request
+            var request = Looper.myLooper()?.let {
+                fusedLocationProviderClient!!.requestLocationUpdates(
+                    locationRequest, sendToAPI, it
+                )
+            }
+            return request!!
         } else {
-            var request = fusedLocationProviderClient!!.requestLocationUpdates(
-                locationRequest, locationCalback, Looper.myLooper()
-            )
-            return request
+            var request = Looper.myLooper()?.let {
+                fusedLocationProviderClient!!.requestLocationUpdates(
+                    locationRequest, locationCalback, it
+                )
+            }
+            return request!!
         }
 
 

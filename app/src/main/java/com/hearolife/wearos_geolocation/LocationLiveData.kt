@@ -5,6 +5,7 @@ import android.content.Context
 import android.location.Geocoder
 import androidx.lifecycle.LiveData
 import android.location.Location
+import android.os.Looper
 import android.util.Log
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -61,7 +62,7 @@ class LocationLiveData(context: Context) : LiveData<LocationModel>() {
         fusedLocationClient.requestLocationUpdates(
             locationRequest,
             locationCallback,
-            null
+            Looper.myLooper()!!
         )
     }
 
@@ -73,8 +74,8 @@ class LocationLiveData(context: Context) : LiveData<LocationModel>() {
         }
     }
 
-    private val locationCallback = object : LocationCallback() {
-        override fun onLocationResult(locationResult: LocationResult?) {
+    private val locationCallback = object : LocationCallback(){
+        override fun onLocationResult(locationResult: LocationResult) {
             locationResult ?: return
             for (location in locationResult.locations) {
                 setLocationData(location)

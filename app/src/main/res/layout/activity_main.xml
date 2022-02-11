@@ -46,6 +46,12 @@
                     android:layout_height="wrap_content"
                     android:onClick="requestBackgroundPermissions"
                     android:text="Background Permissions" />
+                <Button
+                    android:id="@+id/set_geofence"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="setGeofence"
+                    android:text="Set Geofence" />
 
             </LinearLayout>
 

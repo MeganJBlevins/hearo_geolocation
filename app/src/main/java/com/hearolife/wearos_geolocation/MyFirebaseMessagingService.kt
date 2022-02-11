@@ -67,7 +67,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService(){
             val token = task.result
 
             Log.e(TAG, token)
-            Toast.makeText(context, token , Toast.LENGTH_SHORT).show()
         })
     }
 
